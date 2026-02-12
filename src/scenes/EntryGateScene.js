@@ -71,9 +71,10 @@ export default class EntryGateScene {
     
     initCamera() {
         // Position camera OUTSIDE the gate, looking TOWARD it
-        this.camera.instance.position.set(0, 3.5, 25);
-        this.camera.instance.lookAt(0, 5, 0);
-        this.camera.instance.fov = 50;
+        // Moved significantly further back (Z: 45) and higher (Y: 8) to ensure full visibility
+        this.camera.instance.position.set(0, 8, 45);
+        this.camera.instance.lookAt(0, 6, 0);
+        this.camera.instance.fov = 50; // Standard FOV for better perspective
         this.camera.instance.updateProjectionMatrix();
     }
     

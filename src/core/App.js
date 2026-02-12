@@ -34,8 +34,6 @@ export default class App {
     initScenes() {
         this.scenes.loading = new LoadingScene(this.camera, this.audioManager, this.globalState);
         this.scenes.entryGate = new EntryGateScene(this.camera, this.audioManager, this.globalState);
-        this.camera.instance.position.set(0, 0, 5);
-        this.camera.instance.lookAt(0, 0, 0);
     }
     setupUI() {
         const backwardArrow = document.getElementById('arrow-backward');
