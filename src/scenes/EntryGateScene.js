@@ -71,9 +71,9 @@ export default class EntryGateScene {
     
     initCamera() {
         // Position camera OUTSIDE the gate, looking TOWARD it
-        this.camera.instance.position.set(0, 2.5, 18);
-        this.camera.instance.lookAt(0, 4, 0);
-        this.camera.instance.fov = 55;
+        this.camera.instance.position.set(0, 3.5, 25);
+        this.camera.instance.lookAt(0, 5, 0);
+        this.camera.instance.fov = 50;
         this.camera.instance.updateProjectionMatrix();
     }
     
@@ -81,14 +81,17 @@ export default class EntryGateScene {
     
     createLights() {
         // Ambient light
-        const ambient = new THREE.AmbientLight(0x4488bb, 0.4);
-        this.scene.add(ambient);
+        this.ambient = new THREE.AmbientLight(0x4488bb, 0.4);
+        this.scene.add(this.ambient);
         
         // Main directional light
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
-        dirLight.position.set(5, 15, 10);
-        dirLight.castShadow = true;
-        this.scene.add(dirLight);
+        this.dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        this.dirLight.position.set(5, 15, 10);
+        this.dirLight.castShadow = true;
+        this.scene.add(this.dirLight);
+
+        // Check initial theme
+        this.updateLightsForTheme();
         
         // Cyan accent lights on gate
         const leftAccent = new THREE.SpotLight(0x00ffff, 2, 40, Math.PI / 5, 0.5, 1.5);
@@ -306,6 +309,31 @@ export default class EntryGateScene {
         this.updateTextAnimation();
         this.updateTextFloating();
         this.checkUserProgress();
+        this.updateLightsForTheme();
+    }
+
+    updateLightsForTheme() {
+        const isLight = document.body.getAttribute('data-theme') === 'light';
+        
+        if (isLight) {
+            // Sunlight effect
+            this.scene.background = new THREE.Color(0x87ceeb); // Sky blue
+            this.scene.fog.color.set(0x87ceeb);
+            this.ambient.color.set(0xfff4e0); // Warm sunlight ambient
+            this.ambient.intensity = 0.8;
+            this.dirLight.color.set(0xffffff);
+            this.dirLight.intensity = 1.2;
+            this.dirLight.position.set(10, 20, 10);
+        } else {
+            // Original dark sci-fi effect
+            this.scene.background = new THREE.Color(0x000a14);
+            this.scene.fog.color.set(0x000a14);
+            this.ambient.color.set(0x4488bb);
+            this.ambient.intensity = 0.4;
+            this.dirLight.color.set(0xffffff);
+            this.dirLight.intensity = 0.7;
+            this.dirLight.position.set(5, 15, 10);
+        }
     }
     
     updateDoorAnimation() {
