@@ -45,6 +45,7 @@ export default class Controls {
     
     initControls() {
         const canvas = document.getElementById('canvas');
+        if (!canvas) return;
         
         // === TOUCH CONTROLS (Mobile) ===
         canvas.addEventListener('touchstart', (e) => {
@@ -110,6 +111,10 @@ export default class Controls {
         });
         
         canvas.addEventListener('mouseup', () => {
+            this.touch.isActive = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
             this.touch.isActive = false;
         });
         
@@ -180,6 +185,12 @@ export default class Controls {
         const cam = this.camera.instance;
         cam.rotation.y = this.rotation.horizontal;
         cam.rotation.x = this.rotation.vertical;
+        
+        // Apply movement
+        if (Math.abs(this.movement.forward) > 0.01) {
+            const moveSpeed = 0.1;
+            cam.position.z -= this.movement.forward * moveSpeed;
+        }
     }
     
     getMovement() {

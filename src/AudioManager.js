@@ -170,4 +170,97 @@ export default class AudioManager {
     setMasterVolume(volume) {
         this.masterVolume = Math.max(0, Math.min(1, volume));
     }
+    
+    /**
+     * Play gate opening sound (PLACEHOLDER - replace with audio file)
+     * 
+     * TO USE YOUR OWN AUDIO FILE:
+     * 1. Place your audio file in: assets/audios/gate-opening.mp3
+     * 2. Replace this method body with:
+     *    const audio = new Audio('../assets/audios/gate-opening.mp3');
+     *    audio.volume = 0.8 * this.masterVolume;
+     *    audio.play();
+     */
+    playGateOpening() {
+        if (!this.initialized || this.isMuted) return;
+        
+        // Placeholder: simple mechanical sound using oscillators
+        const osc1 = this.audioContext.createOscillator();
+        const osc2 = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        osc1.frequency.value = 80;
+        osc2.frequency.value = 120;
+        osc1.type = 'sawtooth';
+        osc2.type = 'triangle';
+        
+        const volume = this.masterVolume * this.categories.effects;
+        gainNode.gain.setValueAtTime(volume * 0.2, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 2);
+        
+        osc1.start(this.audioContext.currentTime);
+        osc2.start(this.audioContext.currentTime);
+        osc1.stop(this.audioContext.currentTime + 2);
+        osc2.stop(this.audioContext.currentTime + 2);
+        
+        console.log('Gate opening sound played (placeholder)');
+    }
+    
+    /**
+     * Play ambient background music (PLACEHOLDER - replace with audio file)
+     * 
+     * TO USE YOUR OWN AUDIO FILE:
+     * 1. Place your audio file in: assets/audios/ambient-music.mp3
+     * 2. Replace this method body with:
+     *    if (this.backgroundMusic) this.backgroundMusic.pause();
+     *    this.backgroundMusic = new Audio('../assets/audios/ambient-music.mp3');
+     *    this.backgroundMusic.volume = 0.3 * this.masterVolume;
+     *    this.backgroundMusic.loop = true;
+     *    this.backgroundMusic.play();
+     */
+    playAmbientMusic() {
+        if (!this.initialized || this.isMuted) return;
+        
+        // Placeholder: subtle ambient drone
+        const osc = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        osc.frequency.value = 55; // Low A note
+        osc.type = 'sine';
+        
+        const volume = this.masterVolume * this.categories.ambient;
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume * 0.1, this.audioContext.currentTime + 3);
+        
+        osc.start(this.audioContext.currentTime);
+        
+        // Store for cleanup
+        this.ambientOscillator = osc;
+        this.ambientGain = gainNode;
+        
+        console.log('Ambient music started (placeholder)');
+    }
+    
+    /**
+     * Stop ambient music
+     */
+    stopAmbientMusic() {
+        if (this.ambientOscillator) {
+            const currentTime = this.audioContext.currentTime;
+            this.ambientGain.gain.linearRampToValueAtTime(0, currentTime + 1);
+            
+            setTimeout(() => {
+                this.ambientOscillator.stop();
+                this.ambientOscillator = null;
+                this.ambientGain = null;
+            }, 1000);
+        }
+    }
 }

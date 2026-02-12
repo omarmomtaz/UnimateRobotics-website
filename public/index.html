@@ -7,6 +7,34 @@
     <link rel="icon" type="image/svg+xml" href="../assets/images/unimate's Sphere logo.png">
     <title>Unimate Robotics Club</title>
     <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --accent-color: #00ffff;
+            --accent-glow: rgba(0, 255, 255, 0.5);
+            --navbar-bg: rgba(20, 30, 48, 0.3);
+            --navbar-border: rgba(0, 255, 255, 0.2);
+            --button-bg: rgba(0, 255, 255, 0.1);
+            --button-border: rgba(0, 255, 255, 0.3);
+            --window-bg: rgba(10, 20, 40, 0.6);
+            --window-border: rgba(255, 255, 255, 0.2);
+            --window-glow: rgba(0, 255, 255, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #ffffff;
+            --text-color: #1a4d2e;
+            --accent-color: #d63447;
+            --accent-glow: rgba(214, 52, 71, 0.5);
+            --navbar-bg: rgba(240, 245, 250, 0.3);
+            --navbar-border: rgba(214, 52, 71, 0.2);
+            --button-bg: rgba(214, 52, 71, 0.1);
+            --button-border: rgba(214, 52, 71, 0.3);
+            --window-bg: rgba(250, 250, 250, 0.6);
+            --window-border: rgba(26, 77, 46, 0.2);
+            --window-glow: rgba(214, 52, 71, 0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,7 +46,9 @@
             height: 100%;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #000;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         #canvas {
@@ -26,6 +56,11 @@
             width: 100%;
             height: 100%;
             touch-action: none;
+        }
+
+        /* Hide canvas when floating windows are open */
+        body.window-open #canvas {
+            display: none;
         }
 
         /* Loading overlay */
@@ -63,76 +98,193 @@
             pointer-events: auto;
         }
 
-        /* Desktop navigation arrows */
-        .nav-arrow {
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* THEME TOGGLE BUTTON (TOP RIGHT, LEFT OF MUTE)                        */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
+        #theme-button {
             position: fixed;
-            width: 46px;
-            height: 46px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            top: 28px;
+            right: 100px;
+            width: 56px;
+            height: 56px;
+            background: radial-gradient(circle at center, var(--button-bg), rgba(0, 100, 150, 0.05));
+            border: 2px solid var(--button-border);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.25s ease;
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.65);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 250;
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px var(--button-bg);
+            color: var(--accent-color);
+        }
+
+        #theme-button::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--accent-glow), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #theme-button:hover::before {
+            opacity: 1;
+        }
+
+        #theme-button:hover {
+            background: radial-gradient(circle at center, var(--button-bg), var(--button-bg));
+            border-color: var(--accent-color);
+            box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px var(--button-bg);
+            transform: scale(1.08);
+        }
+
+        #theme-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px var(--accent-glow), inset 0 0 15px var(--button-bg);
+        }
+
+        #theme-button svg {
+            width: 26px;
+            height: 26px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 4px var(--accent-glow));
+        }
+
+        #theme-button:hover svg {
+            filter: drop-shadow(0 0 8px var(--accent-color));
+            transform: rotate(180deg);
+        }
+
+        #theme-button.switching svg {
+            animation: themeSwitch 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes themeSwitch {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.3); opacity: 0.3; }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* EPIC SCI-FI NAVIGATION ARROWS                                        */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
+        .nav-arrow {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at center, var(--button-bg), rgba(0, 100, 150, 0.05));
+            border: 2px solid var(--button-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 200;
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px var(--button-bg);
+            color: var(--accent-color);
+        }
+
+        .nav-arrow::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--accent-glow), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-arrow:hover::before {
+            opacity: 1;
         }
 
         .nav-arrow:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(0, 255, 255, 0.5);
-            color: #00ffff;
-            box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+            background: radial-gradient(circle at center, var(--button-bg), var(--button-bg));
+            border-color: var(--accent-color);
+            box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px var(--button-bg);
+            transform: scale(1.05);
         }
 
         .nav-arrow:active {
-            transform: scale(0.92);
+            transform: scale(0.95);
+            box-shadow: 0 0 15px var(--accent-glow), inset 0 0 15px var(--button-bg);
         }
 
-        /* Forward arrow — top center */
+        .nav-arrow svg {
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 0 4px var(--accent-glow));
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover svg {
+            filter: drop-shadow(0 0 8px var(--accent-color));
+            transform: scale(1.1);
+        }
+
+        /* Arrow positions */
         #arrow-forward {
-            top: 24px;
+            top: 28px;
             left: 50%;
             transform: translateX(-50%);
         }
-        #arrow-forward:active {
-            transform: translateX(-50%) scale(0.92);
-        }
+        #arrow-forward:hover { transform: translateX(-50%) scale(1.05); }
+        #arrow-forward:active { transform: translateX(-50%) scale(0.95); }
+        #arrow-forward.glow { transform: translateX(-50%); }
 
-        /* Backward arrow — above navbar */
         #arrow-backward {
-            bottom: 120px;
+            bottom: 130px;
             left: 50%;
             transform: translateX(-50%);
         }
-        #arrow-backward:active {
-            transform: translateX(-50%) scale(0.92);
-        }
+        #arrow-backward:hover { transform: translateX(-50%) scale(1.05); }
+        #arrow-backward:active { transform: translateX(-50%) scale(0.95); }
 
-        /* Left arrow — vertically centered, left edge */
         #arrow-left {
             top: 50%;
-            left: 20px;
+            left: 24px;
             transform: translateY(-50%);
         }
-        #arrow-left:active {
-            transform: translateY(-50%) scale(0.92);
-        }
+        #arrow-left:hover { transform: translateY(-50%) scale(1.05); }
+        #arrow-left:active { transform: translateY(-50%) scale(0.95); }
 
-        /* Right arrow — vertically centered, right edge */
         #arrow-right {
             top: 50%;
-            right: 20px;
+            right: 24px;
             transform: translateY(-50%);
         }
-        #arrow-right:active {
-            transform: translateY(-50%) scale(0.92);
+        #arrow-right:hover { transform: translateY(-50%) scale(1.05); }
+        #arrow-right:active { transform: translateY(-50%) scale(0.95); }
+
+        /* Glowing state for progression */
+        .nav-arrow.glow {
+            animation: arrowGlow 1.2s ease-in-out infinite;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 50px var(--accent-glow), inset 0 0 40px var(--accent-glow);
+        }
+
+        @keyframes arrowGlow {
+            0%, 100% { 
+                box-shadow: 0 0 50px var(--accent-glow), inset 0 0 40px var(--accent-glow);
+                transform: translateX(-50%) scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 80px var(--accent-color), inset 0 0 60px var(--accent-glow);
+                transform: translateX(-50%) scale(1.12);
+            }
         }
 
         /* Hide arrows on mobile */
@@ -142,118 +294,419 @@
             }
         }
 
-        /* ===================== */
-        /* GLASSMORPHISM NAVBAR  */
-        /* ===================== */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* MUTE BUTTON (TOP RIGHT)                                              */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
+        #mute-button {
+            position: fixed;
+            top: 28px;
+            right: 28px;
+            width: 56px;
+            height: 56px;
+            background: radial-gradient(circle at center, var(--button-bg), rgba(0, 100, 150, 0.05));
+            border: 2px solid var(--button-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 250;
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px var(--button-bg);
+            color: var(--accent-color);
+        }
+
+        #mute-button::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--accent-glow), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #mute-button:hover::before {
+            opacity: 1;
+        }
+
+        #mute-button:hover {
+            background: radial-gradient(circle at center, var(--button-bg), var(--button-bg));
+            border-color: var(--accent-color);
+            box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px var(--button-bg);
+            transform: scale(1.08);
+        }
+
+        #mute-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px var(--accent-glow), inset 0 0 15px var(--button-bg);
+        }
+
+        #mute-button.muted {
+            border-color: #ff3366;
+            box-shadow: 0 0 25px rgba(255, 51, 102, 0.6), inset 0 0 25px rgba(255, 51, 102, 0.2);
+        }
+
+        #mute-button svg {
+            width: 24px;
+            height: 24px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 4px var(--accent-glow));
+        }
+
+        #mute-button:hover svg {
+            filter: drop-shadow(0 0 8px var(--accent-color));
+            transform: scale(1.15);
+        }
+
+        #mute-button.muted svg {
+            filter: drop-shadow(0 0 6px rgba(255, 51, 102, 0.8));
+            animation: muteWiggle 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+
+        @keyframes muteWiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* PROGRESS DOTS                                                         */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
+        #progress-indicator {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--navbar-bg);
+            border: 1px solid var(--navbar-border);
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 150;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-dot.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: scale(1.3);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* GLASSMORPHISM BOTTOM NAVBAR                                           */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
         #bottom-navbar {
             position: fixed;
-            bottom: 28px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 10px 18px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            gap: 4px;
+            padding: 12px 20px;
+            background: var(--navbar-bg);
+            border: 1px solid var(--navbar-border);
             border-radius: 60px;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.12);
-            z-index: 200;
-            pointer-events: auto;
-            white-space: nowrap;
+            z-index: 150;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
         }
 
         .navbar-btn {
             display: flex;
             align-items: center;
-            gap: 7px;
-            padding: 8px 14px;
+            gap: 8px;
+            padding: 10px 18px;
             background: transparent;
-            border: none;
-            border-radius: 40px;
-            cursor: pointer;
-            color: rgba(255, 255, 255, 0.65);
-            font-size: 13px;
+            border: 1px solid transparent;
+            border-radius: 50px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
             font-weight: 500;
-            letter-spacing: 0.02em;
-            transition: all 0.25s ease;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
         }
 
+        [data-theme="light"] .navbar-btn {
+            color: rgba(26, 77, 46, 0.6);
+        }
+
         .navbar-btn:hover {
-            background: rgba(0, 255, 255, 0.1);
-            color: #00ffff;
+            background: var(--button-bg);
+            border-color: var(--button-border);
+            color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         .navbar-btn.active {
-            background: rgba(0, 255, 255, 0.15);
-            color: #00ffff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.15);
+            background: var(--button-bg);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-glow);
+            animation: navPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes navPulse {
+            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+            50% { box-shadow: 0 0 30px var(--accent-glow); }
         }
 
         .navbar-btn svg {
-            flex-shrink: 0;
-            opacity: 0.8;
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-btn:hover svg {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 4px var(--accent-color));
         }
 
         .navbar-divider {
             width: 1px;
-            height: 22px;
-            background: rgba(255, 255, 255, 0.15);
-            flex-shrink: 0;
+            height: 28px;
+            background: var(--navbar-border);
+            margin: 0 4px;
         }
 
-        /* On small screens: hide button labels, show icons only */
-        @media (max-width: 480px) {
-            #bottom-navbar {
-                padding: 8px 12px;
-                gap: 2px;
-                bottom: 20px;
+        /* Hide text on small screens, show icons only */
+        @media (max-width: 600px) {
+            .navbar-btn span {
+                display: none;
             }
             .navbar-btn {
-                padding: 8px 10px;
-                font-size: 0;   /* hide label text */
-                gap: 0;
+                padding: 10px 12px;
             }
-            .navbar-btn svg {
-                width: 20px;
-                height: 20px;
+            #theme-button {
+                top: 20px;
+                right: 80px;
+                width: 48px;
+                height: 48px;
+            }
+            #mute-button {
+                top: 20px;
+                right: 20px;
+                width: 48px;
+                height: 48px;
             }
         }
 
-        /* Progress indicator — sits above navbar */
-        #progress-indicator {
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* "COMEBACK" SPEECH BUBBLE TOOLTIP                                      */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
+        #comeback-bubble {
             position: fixed;
-            bottom: 94px;
+            bottom: 95px;
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            z-index: 200;
+            padding: 10px 18px;
+            background: var(--window-bg);
+            border: 2px solid var(--window-border);
+            border-radius: 18px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 0 25px var(--window-glow);
+            color: var(--accent-color);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            z-index: 160;
+            opacity: 0;
             pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            animation: none;
         }
 
-        .progress-dot {
-            width: 8px;
-            height: 8px;
+        #comeback-bubble.active {
+            opacity: 1;
+            animation: bubbleBob 2s ease-in-out infinite, bubblePulse 1.8s ease-in-out infinite;
+        }
+
+        #comeback-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid var(--window-border);
+            filter: drop-shadow(0 2px 8px var(--window-glow));
+        }
+
+        @keyframes bubbleBob {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-8px); }
+        }
+
+        @keyframes bubblePulse {
+            0%, 100% { 
+                box-shadow: 0 0 25px var(--window-glow);
+                border-color: var(--window-border);
+            }
+            50% { 
+                box-shadow: 0 0 35px var(--accent-glow);
+                border-color: var(--accent-color);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* OVERLAY BACKGROUND (for floating windows)                             */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
+        #overlay-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a1428, #1a0a28, #280a1a, #1a280a);
+            background-size: 400% 400%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 300;
+            transition: opacity 0.5s ease;
+        }
+
+        [data-theme="light"] #overlay-background {
+            background: linear-gradient(135deg, #ffeef0, #ffe5f0, #f0e5ff, #e5fff0);
+            background-size: 400% 400%;
+        }
+
+        #overlay-background.active {
+            opacity: 1;
+            pointer-events: auto;
+            animation: gradientPulse 6s ease infinite;
+        }
+
+        @keyframes gradientPulse {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════ */
+        /* FLOATING WINDOWS (Contact / Profile)                                 */
+        /* ═══════════════════════════════════════════════════════════════════ */
+        
+        .floating-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            min-width: 350px;
+            max-width: 85vw;
+            min-height: 200px;
+            max-height: 80vh;
+            padding: 32px;
+            background: var(--window-bg);
+            border: 2px solid var(--window-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px var(--window-glow);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 350;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .floating-window.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .floating-window h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 16px;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .floating-window p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        [data-theme="light"] .floating-window p {
+            color: rgba(26, 77, 46, 0.8);
+        }
+
+        .close-window {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 100, 100, 0.2);
+            border: 2px solid rgba(255, 100, 100, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ff6666;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 1;
             transition: all 0.3s ease;
+            user-select: none;
         }
 
-        .progress-dot.active {
-            background: #00ffff;
-            box-shadow: 0 0 6px rgba(0, 255, 255, 0.6);
-            transform: scale(1.3);
+        .close-window:hover {
+            background: rgba(255, 100, 100, 0.4);
+            border-color: rgba(255, 100, 100, 0.8);
+            box-shadow: 0 0 15px rgba(255, 100, 100, 0.5);
+            transform: rotate(90deg);
+        }
+
+        /* Mobile responsive for floating windows */
+        @media (max-width: 768px) {
+            .floating-window {
+                min-width: 280px;
+                max-width: 95vw;
+                padding: 24px;
+            }
+            .floating-window h2 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading overlay (will be controlled by JS) -->
+    <!-- Loading overlay -->
     <div id="loading-overlay">
         <div style="color: rgba(255,255,255,0.5); font-size: 14px;">LOADING...</div>
     </div>
@@ -261,13 +714,80 @@
     <!-- Main 3D canvas -->
     <canvas id="canvas"></canvas>
 
+    <!-- Overlay Background (for floating windows) -->
+    <div id="overlay-background"></div>
+
+    <!-- Floating Windows -->
+    <div id="contact-window" class="floating-window">
+        <div class="close-window">×</div>
+        <h2>Contact Us</h2>
+        <p>Contact information will be added here...</p>
+    </div>
+
+    <div id="profile-window" class="floating-window">
+        <div class="close-window">×</div>
+        <h2>Profile</h2>
+        <p>Profile content will be added here...</p>
+    </div>
+
+    <!-- "ComeBack" Speech Bubble -->
+    <div id="comeback-bubble">Come back & continue the journey</div>
+
     <!-- UI Container -->
     <div id="ui-container">
-        <!-- Desktop navigation arrows -->
-        <div id="arrow-forward"  class="nav-arrow ui-element" title="Move forward">↑</div>
-        <div id="arrow-backward" class="nav-arrow ui-element" title="Move backward">↓</div>
-        <div id="arrow-left"     class="nav-arrow ui-element" title="Look left">←</div>
-        <div id="arrow-right"    class="nav-arrow ui-element" title="Look right">→</div>
+        <!-- Theme Toggle Button (top right, left of mute) -->
+        <button id="theme-button" class="ui-element" title="Toggle theme">
+            <svg id="theme-dark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <svg id="theme-light-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+        </button>
+
+        <!-- Mute Button (top right) -->
+        <button id="mute-button" class="ui-element" title="Toggle sound">
+            <svg id="sound-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+            <svg id="sound-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+        </button>
+
+        <!-- Desktop navigation arrows (EPIC SCI-FI STYLE) -->
+        <div id="arrow-forward" class="nav-arrow ui-element" title="Move forward">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5l0 14M5 12l7 -7l7 7"/>
+            </svg>
+        </div>
+        <div id="arrow-backward" class="nav-arrow ui-element" title="Move backward">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19l0 -14M5 12l7 7l7 -7"/>
+            </svg>
+        </div>
+        <div id="arrow-left" class="nav-arrow ui-element" title="Look left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12l14 0M5 12l6 6M5 12l6 -6"/>
+            </svg>
+        </div>
+        <div id="arrow-right" class="nav-arrow ui-element" title="Look right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12l-14 0M19 12l-6 6M19 12l-6 -6"/>
+            </svg>
+        </div>
 
         <!-- Stage progress dots -->
         <div id="progress-indicator">
@@ -283,7 +803,6 @@
 
         <!-- Glassmorphism bottom navbar -->
         <nav id="bottom-navbar">
-            <!-- Journey (home) -->
             <button class="navbar-btn active" id="nav-journey" title="Continue the journey">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -295,7 +814,6 @@
 
             <div class="navbar-divider"></div>
 
-            <!-- Contact -->
             <button class="navbar-btn" id="nav-contact" title="Contact us">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -306,7 +824,6 @@
 
             <div class="navbar-divider"></div>
 
-            <!-- Profile -->
             <button class="navbar-btn" id="nav-profile" title="Profile">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -329,5 +846,113 @@
     </script>
     
     <script type="module" src="../main.js"></script>
+    
+    <script>
+        // ═════════════════════════════════════════════════════════════════════
+        // UI INTERACTIONS (Theme, Mute, Contact, Profile Windows)
+        // ═════════════════════════════════════════════════════════════════════
+        
+        const themeButton = document.getElementById('theme-button');
+        const themeDarkIcon = document.getElementById('theme-dark-icon');
+        const themeLightIcon = document.getElementById('theme-light-icon');
+        const muteButton = document.getElementById('mute-button');
+        const soundOnIcon = document.getElementById('sound-on-icon');
+        const soundOffIcon = document.getElementById('sound-off-icon');
+        const overlayBg = document.getElementById('overlay-background');
+        const contactWindow = document.getElementById('contact-window');
+        const profileWindow = document.getElementById('profile-window');
+        const navJourney = document.getElementById('nav-journey');
+        const navContact = document.getElementById('nav-contact');
+        const navProfile = document.getElementById('nav-profile');
+        const comebackBubble = document.getElementById('comeback-bubble');
+        
+        let isMuted = false;
+        let isDarkTheme = true;
+        
+        // ─── Theme Toggle ────────────────────────────────────────────────────
+        themeButton.addEventListener('click', () => {
+            isDarkTheme = !isDarkTheme;
+            themeButton.classList.add('switching');
+            
+            if (isDarkTheme) {
+                document.body.removeAttribute('data-theme');
+                themeDarkIcon.style.display = 'block';
+                themeLightIcon.style.display = 'none';
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+                themeDarkIcon.style.display = 'none';
+                themeLightIcon.style.display = 'block';
+            }
+            
+            setTimeout(() => {
+                themeButton.classList.remove('switching');
+            }, 600);
+        });
+        
+        // ─── Mute Toggle ─────────────────────────────────────────────────────
+        muteButton.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteButton.classList.toggle('muted', isMuted);
+            soundOnIcon.style.display = isMuted ? 'none' : 'block';
+            soundOffIcon.style.display = isMuted ? 'block' : 'none';
+            
+            window.dispatchEvent(new CustomEvent('audio-mute-toggle', { detail: { muted: isMuted } }));
+        });
+        
+        // ─── Contact Window ──────────────────────────────────────────────────
+        navContact.addEventListener('click', () => {
+            openWindow(contactWindow);
+            navContact.classList.add('active');
+            navProfile.classList.remove('active');
+            navJourney.classList.remove('active');
+            comebackBubble.classList.add('active');
+            document.body.classList.add('window-open');
+        });
+        
+        // ─── Profile Window ──────────────────────────────────────────────────
+        navProfile.addEventListener('click', () => {
+            openWindow(profileWindow);
+            navProfile.classList.add('active');
+            navContact.classList.remove('active');
+            navJourney.classList.remove('active');
+            comebackBubble.classList.add('active');
+            document.body.classList.add('window-open');
+        });
+        
+        // ─── Journey Button (close windows, return to journey) ──────────────
+        navJourney.addEventListener('click', () => {
+            closeAllWindows();
+        });
+        
+        // ─── Close Buttons ───────────────────────────────────────────────────
+        document.querySelectorAll('.close-window').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                closeAllWindows();
+                e.stopPropagation();
+            });
+        });
+        
+        // ─── Close on Background Click ───────────────────────────────────────
+        overlayBg.addEventListener('click', () => {
+            closeAllWindows();
+        });
+        
+        // ─── Helper Functions ────────────────────────────────────────────────
+        function openWindow(window) {
+            overlayBg.classList.add('active');
+            window.classList.add('active');
+        }
+        
+        function closeAllWindows() {
+            overlayBg.classList.remove('active');
+            contactWindow.classList.remove('active');
+            profileWindow.classList.remove('active');
+            navContact.classList.remove('active');
+            navProfile.classList.remove('active');
+            navJourney.classList.add('active');
+            comebackBubble.classList.remove('active');
+            document.body.classList.remove('window-open');
+        }
+    </script>
 </body>
 </html>

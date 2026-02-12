@@ -18,13 +18,13 @@ export default class GlobalState {
 
         this.sceneNames = [
             'loading',
-            'entry-gate',
-            'main-street',
-            'workshop-district',
-            'competition-arena',
-            'hall-of-legacy',
-            'enrollment-hub',
-            'exit-confirmation'
+            'entryGate',
+            'mainStreet',
+            'workshopDistrict',
+            'competitionArena',
+            'hallOfLegacy',
+            'enrollmentHub',
+            'exitConfirmation'
         ];
 
         this.userData = { name: '', age: '', contact: '', interest: '' };
